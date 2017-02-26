@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>AppletLoader</title>
+    </head>
+    <body>
+
+        <applet code="org.lwjgl.util.applet.AppletLoader" archive="lwjgl_util_applet.jar, lzma.jar" codebase="." width="640" height="480">
+
+            <!-- The following tags are mandatory -->
+
+            <!-- Name of Applet, will be used as name of directory it is saved in, and will uniquely identify it in cache -->
+            <param name="al_title" value="appletloadertest">
+
+            <!-- Main Applet Class -->
+            <!--<param name="al_main" value="org.lwjgl.test.applet.GearsApplet">-->
+
+            <param name="al_main" value="Game">
+
+            <!-- logo to paint while loading, will be centered -->
+            <param name="al_logo" value="appletlogo.png">
+
+            <!-- progressbar to paint while loading. Will be painted on top of logo, width clipped to percentage done -->
+            <param name="al_progressbar" value="appletprogress.gif">
+
+            <!-- List of Jars to add to classpath -->
+            <param name="al_jars" value="game4.jar.pack.lzma, 
+                   game_support.jar.pack.lzma,
+                   env3d_jme3.jar.pack.lzma,
+                   eventbus.jar.pack.lzma,
+                   gluegen-rt.jar.pack.lzma,
+                   j-ogg-oggd.jar.pack.lzma,
+                   j-ogg-vorbisd.jar.pack.lzma,
+                   jME3-blender.jar.pack.lzma,
+                   jME3-core.jar.pack.lzma,
+                   jME3-desktop.jar.pack.lzma,
+                   jME3-effects.jar.pack.lzma,
+                   jME3-jbullet.jar.pack.lzma,
+                   jME3-jogg.jar.pack.lzma,
+                   jME3-lwjgl.jar.pack.lzma,
+                   jME3-networking.jar.pack.lzma,
+                   jME3-niftygui.jar.pack.lzma,
+                   jME3-plugins.jar.pack.lzma,
+                   jME3-terrain.jar.pack.lzma,
+                   jMonkeyEngine3.jar.pack.lzma,
+                   jbullet.jar.pack.lzma,
+                   jinput.jar.pack.lzma,
+                   lwjgl.jar.pack.lzma,
+                   nifty-default-controls.jar.pack.lzma,
+                   nifty-style-black.jar.pack.lzma,
+                   nifty.jar.pack.lzma,
+                   rsyntaxtextarea.jar.pack.lzma,
+                   stack-alloc.jar.pack.lzma,
+                   vecmath.jar.pack.lzma,
+                   xmlpull-xpp3.jar.pack.lzma" />
+
+            <!-- signed windows natives jar in a jar --> 
+            <param name="al_windows" value="windows_natives.jar.pack.lzma">
+
+            <!-- signed linux natives jar in a jar --> 
+            <param name="al_linux" value="linux_natives.jar.pack.lzma">
+
+            <!-- signed mac osx natives jar in a jar --> 
+            <param name="al_mac" value="macosx_natives.jar.pack.lzma">
+
+            <!-- signed solaris natives jar in a jar --> 
+            <param name="al_solaris" value="solaris_natives.jar.pack.lzma">
+
+            <!-- Tags under here are optional -->
+
+
+            <!-- Version of Applet, important otherwise applet won't be cached, version change will update applet, must be int or float -->
+            <!-- <param name="al_version" value="0.1"> -->
+
+            <!-- background color to paint with, defaults to white -->
+            <!-- <param name="al_bgcolor" value="000000"> -->
+
+            <!-- foreground color to paint with, defaults to black -->
+            <!-- <param name="al_fgcolor" value="ffffff"> -->
+
+            <!-- error color to paint with, defaults to red -->
+            <!-- <param name="al_errorcolor" value="ff0000"> -->
+
+            <!-- whether to run in debug mode -->
+            <!-- <param name="al_debug" value="true"> -->
+
+            <!-- whether to prepend host to cache path - defaults to true -->
+            <param name="al_prepend_host" value="false">
+
+            <!-- main applet specific params -->
+            <param name="separate_jvm" value="true">  
+        </applet>
+    </body>
+</html>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="env3d_jme3" default="default" basedir=".">
+    <description>Builds, tests, and runs the project env3d_jme3.</description>
+    <import file="nbproject/build-impl.xml"/>
+    <property name="support.dir" value="${dist.dir}/../support"/>
+    <property name="libs.dir" value="${dist.dir}/../libs"/>
+    <target name="-post-jar">
+        <echo>Using JAVA_HOME: ${java.home}</echo>
+        <copy file="${dist.dir}/env3d_jme3.jar" tofile="${dist.dir}/env3d_template/extensions/env3d_jme3.jar" overwrite="true" />
+        <copy file="${dist.dir}/env3d_jme3.jar" tofile="${dist.dir}/env3d_template/+libs/env3d_jme3.jar" overwrite="true" />
+        <copy todir="${dist.dir}/env3d_template/extensions/lib">
+            <fileset dir="${dist.dir}/lib" />
+        </copy>
+        <copy todir="${dist.dir}/env3d_template/+libs" >
+            <fileset dir="${dist.dir}/lib">
+                <!-- No need to put these jars in the +libs directory, only used in extension -->
+                <exclude name="commons-io-2.1.jar"/>
+                <exclude name="ant.jar"/>
+                <exclude name="ant-launcher.jar"/>
+                <exclude name="appbundler-1.0.jar"/>
+            </fileset>
+        </copy>
+
+        <!-- Extract native libraries -->
+        <unzip src="${dist.dir}/env3d_template/+libs/lwjgl-platform-2.9.3-natives-osx.jar" dest="${dist.dir}/env3d_template/natives">
+            <patternset>
+                <exclude name="META-INF/**"/>
+                <exclude name="__MACOSX/**"/>
+            </patternset>            
+        </unzip>
+        <unzip src="${dist.dir}/env3d_template/+libs/lwjgl-platform-2.9.3-natives-linux.jar" dest="${dist.dir}/env3d_template/natives">
+            <patternset>
+                <exclude name="META-INF/**"/>
+                <exclude name="__MACOSX/**"/>
+            </patternset>            
+        </unzip>
+        <unzip src="${dist.dir}/env3d_template/+libs/lwjgl-platform-2.9.3-natives-windows.jar" dest="${dist.dir}/env3d_template/natives">
+            <patternset>
+                <exclude name="META-INF/**"/>
+                <exclude name="__MACOSX/**"/>
+            </patternset>            
+        </unzip>
+        <copy todir="${dist.dir}/env3d_template/" includeemptydirs="false" flatten="true">
+            <fileset dir="${dist.dir}/env3d_template/natives">
+                <include name="**"/>
+            </fileset>
+        </copy>
+        <delete dir="${dist.dir}/env3d_template/natives" />
+        
+            
+
+<!--        <delete dir="${dist.dir}/env3d_template/textures" />-->
+        <mkdir dir="${dist.dir}/env3d_template/textures" />
+        <copy todir="${dist.dir}/env3d_template/textures">
+            <fileset dir="${support.dir}/textures" >
+<!--                <include name="**/*.gif" />-->
+<!--                <include name="**/*.jpg" />-->
+                <include name="**/*.png" />
+                <include name="**/*.txt" />
+            </fileset>
+        </copy>
+
+        <!-- Include some default models -->
+<!--        <delete dir="${dist.dir}/env3d_template/models"/>-->
+        <mkdir dir="${dist.dir}/env3d_template/models" />
+        <copy todir="${dist.dir}/env3d_template/models">
+            <fileset dir="${support.dir}/models" >
+                <include name = "**"/>
+                <exclude name = "**/*.gif"/>
+                <exclude name = "**/*.jpg"/>
+            </fileset>
+        </copy>
+
+        <mkdir dir="${dist.dir}/env3d_template/sounds" />
+
+        <!-- Create directory for additional libs needed -->
+        <mkdir dir="${dist.dir}/env3d_template/extras" />
+        <copy todir="${dist.dir}/env3d_template/extras/">
+            <!-- take the file directly from the jME source -->
+            <fileset dir="${support.dir}/libs">
+                <include name = "launch4j/**"/>
+                <include name = "macapp/**" />
+                <include name = "admob/**" />
+            </fileset>
+        </copy>
+        <chmod perm="555">
+            <fileset dir="${dist.dir}/env3d_template/extras/launch4j/bin"/>
+        </chmod>
+
+        
+        <copy todir="${dist.dir}/env3d_template/">
+            <!-- Include the env3dkey file for signing -->
+            <fileset file="${support.dir}/env3dkey"/>
+            <!-- build.xml file is for netbeans project -->
+            <fileset file="${support.dir}/build.xml"/>     
+        </copy>
+        
+        <!-- Create directories for NetBeans project -->
+        <mkdir dir="${dist.dir}/env3d_template/src" />
+<!--        <copy todir="${dist.dir}/env3d_template/src">
+            <fileset file="${support.dir}/examples/netbeans/Game.java"/>
+        </copy>-->
+        <mkdir dir="${dist.dir}/env3d_template/nbproject" />
+        <copy todir="${dist.dir}/env3d_template/nbproject">        
+            <fileset dir="${support.dir}/_nbproject"/>
+        </copy>
+
+        <!-- Include some examples -->
+        <mkdir dir="${dist.dir}/env3d_template/examples" />
+        <copy todir="${dist.dir}/env3d_template/examples">
+            <fileset dir="${support.dir}/examples" >
+                <include name="**" />
+            </fileset>
+        </copy>
+        
+<!--        <copy todir="${dist.dir}/env3d_template">
+            <fileset dir="${src.dir}/test/android/worldofzuul">
+                <include name="**"/>
+            </fileset>           
+        </copy>-->
+        
+        <!-- Make this a BlueJ project -->
+        <touch file="${dist.dir}/env3d_template/package.bluej" />
+        <touch file="${dist.dir}/env3d_template/bluej.pkg" />
+
+        <!-- Clean up -->
+        <delete file="${dist.dir}/README.TXT" />        
+        <delete dir="${dist.dir}/lib" />
+        
+        <!-- Temporarily remove jython.jar -->
+        <delete>
+            <fileset dir="${dist.dir}" includes="**/jython.jar"/>
+        </delete>
+        
+        <!-- Some additional tasks to complete the package -->
+<!--        <antcall target="makeAppletDir"/>
+        <antcall target="packageAssets"/>
+        <antcall target="createZip"/>-->
+
+    </target>
+    
+    <target name="makeAppletDir">
+      <!-- sign env3d_jme3.jar file to prepare for the applet dir --> 
+       <copy todir="${libs.dir}">
+            <fileset dir="${dist.dir}">
+                <include name="env3d_jme3.jar" />
+            </fileset>
+        </copy>
+        <exec executable="bash" dir="${libs.dir}">
+            <arg value="resign.sh" />
+            <arg value="env3d_jme3.jar" />
+        </exec>
+        
+        <!-- Create the applet direcotry -->
+        <mkdir dir="${dist.dir}/env3d_template/applet" />
+        <copy todir="${dist.dir}/env3d_template/applet">
+            <fileset dir="${libs.dir}" >
+                <include name="*.lzma" />
+                <include name="lwjgl_util_applet.jar" />
+                <include name="lzma.jar" />
+            </fileset>
+            <fileset dir="${support.dir}">
+                <include name="appletloader.html" />
+            </fileset>
+        </copy>
+        <copy todir="${dist.dir}/env3d_template">
+            <fileset dir="${support.dir}">
+                <include name="env3dkey" />
+            </fileset>
+        </copy>        
+    </target>
+        
+    <target name="createZip" depends="clean-dist, jar, makeAppletDir, packageAssets">
+        <!-- Create distribution zip file -->
+        <delete file="${dist.dir}/env3d_template.zip"/>
+        <zip destfile="${dist.dir}/env3d_template.zip" 
+            basedir="${dist.dir}"
+            includes="env3d_template/**" excludes="**/jython.jar">
+        </zip>                
+        <!-- Create the Env3DTemplateProject for netbeans plugin -->        
+        <zip destfile="../netbeans/Env3DModule/src/org/env3d/nbproject/Env3DTemplateProject.zip" 
+            basedir="${dist.dir}/env3d_template"
+            includes="**" excludes="**/jython.jar">
+        </zip>
+        
+    </target>
+    
+    <target name="clean-dist" depends="init">
+        <delete dir="${dist.dir}"/>
+    </target>
+    
+    <target name="packageAssets">
+
+        <!-- copy the character animation pack -->
+        <copy todir="${dist.dir}/env3d_template">
+            <fileset dir="../models/">
+                <include name="env3d_characterpack.jar.lzma" />
+            </fileset>
+        </copy>                   
+    </target>
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="env3d_jme3-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+</project>

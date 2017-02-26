@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="Env3DTemplate" default="default" basedir=".">
+    <description>Builds, tests, and runs the project Env3DTemplate.</description>
+    <import file="nbproject/build-impl.xml"/>
+    
+    <target name="-post-jar">
+        <copy file="${dist.jar}" tofile="applet/game3.jar"/>                        
+    </target>
+    
+    <target name="AppletLaunch" depends="jar" description="Package Env3D program for distribution">         
+        <java fork="true" failonerror="yes" classname="bluej.action.CreateAppletAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line=". na"/>
+        </java>                
+    </target>
+    
+    <target name="AppletUpload" depends="jar" description="Package Env3D program for distribution">         
+        <java fork="true" failonerror="yes" classname="bluej.action.CreateAppletAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line=". upload"/>
+        </java>                
+    </target>
+    
+    <target name="WebstartUpload" depends="jar" description="Package Env3D program for distribution">         
+        <java fork="true" failonerror="yes" classname="bluej.action.CreateAppletAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line=". webstartupload"/>
+        </java>                
+    </target>
+    
+    <target name="AndroidDebug" depends="jar" description="Debug android project">         
+        <java fork="true" failonerror="yes" classname="bluej.action.DeployAndroidAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line="debug ."/>
+        </java>                
+    </target>
+
+    <target name="AndroidRelease" depends="jar" description="Release android project">         
+        <java fork="true" failonerror="yes" classname="bluej.action.DeployAndroidAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line="release ."/>
+        </java>                
+    </target>
+        
+    
+    <target name="SceneCreator" description="Launch the Env3D Scene Creator">
+        <java fork="true" failonerror="yes" classname="env3d.scenecreator.UI" classpath="extensions/*:extensions/lib/*">  
+            <arg line=""/>
+        </java>                        
+    </target>
+    
+    <target name="ExtractModels" description="Extract Animation Models">
+        <java fork="true" failonerror="yes" classname="bluej.action.ExtractAssetsAction" classpath="extensions/*:extensions/lib/*">  
+            <arg line=""/>
+        </java>                        
+    </target>    
+    
+    
+    <target name="make-staging-dir">
+        <!-- create the staging directory first -->
+        <java fork="true" failonerror="yes" classname="env3d.util.Staging" classpath="extensions/*:extensions/lib/*">  
+            <arg line="."/>
+        </java>         
+    </target>
+    
+    <!-- properties needed for packaging - fallback only -->
+<!--    <property name="application.title" value="game"/>
+    <property name="dist.dir" value="dist" />
+    <property name="dist.jar" value="${dist.dir}/${application.title}.jar"/>
+    <property name="main.class" value="Game" />
+    <property name="run.jvmargs" value="" />
+    <property name="build.classes.dir" value=""/>-->
+    
+    <target name="-unjar-and-copy-lib-jars" depends="-do-init">
+<!--        <delete dir="${build.classes.dir}"/>-->
+        <unjar dest="${build.classes.dir}">
+            <fileset dir="+libs">
+                <include name="**/*.jar"/>
+                <exclude name="bluejext.jar"/>
+            </fileset>
+            <patternset>
+                <exclude name="META-INF/**"/>
+            </patternset>
+        </unjar>
+        <copy todir="${build.classes.dir}">
+            <fileset dir=".">
+                <include name="*.class"/>
+            </fileset>
+            <fileset dir="staging">
+                <include name="**"/>
+            </fileset>
+        </copy>        
+    </target>
+
+    
+    <target depends="-unjar-and-copy-lib-jars" name="fat-jar" description="Create one big executable jar file">
+        <property name="fat.jar" value="${dist.dir}/${application.title}.jar"/>
+        <jar destfile="${fat.jar}">
+            <fileset dir="${build.classes.dir}"/>
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+            </manifest>
+        </jar>
+                
+        
+        <echo>Your jar file is created successfully</echo>
+    </target>    
+
+    <!-- Create the windows exe file -->
+    <!-- Need to use os x 10.8 specific libraries for launch4j -->
+    <target name="replaceLaunch4JExe" if="mac10.8" >
+        <echo>OSX ${os.version} detected</echo>
+        <copy todir="extras/launch4j/bin/" overwrite="true">
+            <fileset dir="extras/launch4j/bin-osx-10.8/">
+                <include name="ld"/>
+                <include name="windres"/>
+            </fileset>
+        </copy>
+        <chmod perm="777">
+            <fileset dir="extras/launch4j/bin"/>
+        </chmod>        
+    </target>    
+    <target name="exe">
+        <echo>Windows EXE Creation</echo>
+        <!-- Replace executable if running on OSX > 10.8 -->        
+        <chmod perm="777">
+            <fileset dir="extras/launch4j/bin"/>
+        </chmod>
+
+        <condition property="mac10.8" value="true">
+            <and>
+                <os family="mac"/>
+                <matches string="${os.version}" pattern="^10.[8-99]."/>
+            </and>
+        </condition>   
+        <condition property="mac" value="true">
+            <os family="mac"/>
+        </condition>     
+        <antcall target="replaceLaunch4JExe"/>        
+
+        
+        <taskdef classname="net.sf.launch4j.ant.Launch4jTask" classpath="./extras/launch4j/launch4j.jar
+                        :./extras/launch4j/xstream.jar" name="launch4j"/>
+        <launch4j>
+            <config jar="${fat.jar}" outfile="${dist.dir}/${application.title}.exe" errTitle="${application.title}"  headertype="gui" chdir="." customProcName="true">
+                <singleInstance mutexName="${application.title}"/>
+                <jre minVersion="1.6.0" maxheapsize="512"/>
+            </config>
+        </launch4j>
+        
+        <echo>Windows executable file ${dist.dir}/${application.title}.exe is created successfully</echo>
+    </target>
+
+    <taskdef name="bundleapp"
+             classname="com.oracle.appbundler.AppBundlerTask"   
+             classpath="lib/appbundler-1.0.jar" />
+
+    <property environment="env" />
+    <target name="mac-app" if="mac">
+        <bundleapp outputdirectory="${dist.dir}"
+            name="${application.title}"
+            displayname="${application.title}"
+            identifier="com.env3d.${application.title}"
+            mainclassname="Game">
+<!--            <runtime dir="/Library/Java/JavaVirtualMachines/jdk1.7.0_51.jdk/Contents/Home" />-->
+            <runtime dir="${java.home}/../" />
+            <classpath file="${dist.dir}/${application.title}.jar" />
+        </bundleapp>
+        <echo>Using java_home ${java.home}</echo>
+        <echo>Mac executable file ${dist.dir}/${application.title}-MacOSX.zip is created successfully</echo>
+    </target>
+    
+    <target name="mac-app-old">
+        <echo>MacOSX Application Creation</echo>
+        <copy file="extras/macapp/Info.plist" tofile="extras/macapp/_Info.plist">
+            <filterchain>
+                <replacestring from="$${main.class}" to="${main.class}"/>
+                <replacestring from="$${run.jvmargs}" to="${run.jvmargs}"/>
+                <replacestring from="$${application.title}" to="${application.title}"/>
+            </filterchain>
+        </copy>
+        <zip destfile="${dist.dir}/${application.title}-MacOSX.zip">
+            <zipfileset file="extras/macapp/osx-stub" filemode="755" fullpath="${application.title}.app/Contents/MacOS/JavaApplicationStub"/>
+            <zipfileset file="extras/macapp/_Info.plist" fullpath="${application.title}.app/Contents/Info.plist"/>
+            <zipfileset file="extras/macapp/osx-icon.icns" fullpath="${application.title}.app/Contents/Resources/GenericApp.icns"/>
+            <zipfileset file="${fat.jar}" prefix="${application.title}.app/Contents/Resources/Java"/>
+        </zip>
+        <delete file="extras/macapp/_Info.plist"/>
+        <echo>Mac executable file ${dist.dir}/${application.title}-MacOSX.zip is created successfully</echo>
+    </target>    
+    
+    <target depends="clean, make-staging-dir, compile, fat-jar, exe, mac-app" name="fat-jar-exe">
+        <echo>Success! Executables created for windows and mac</echo>        
+    </target>
+        
+    <target name="UpdateEnv3D" description="Update the env3d library">
+        <!-- Download and then extract -->
+        <get src="http://sourceforge.net/projects/env3d/files/env3d_template.zip/download" 
+            dest="env3d_template.zip" 
+            verbose="true"
+            usetimestamp="true"/>        
+        <unzip src="env3d_template.zip" dest=".">
+            <cutdirsmapper dirs="1" />
+        </unzip>
+
+    </target>
+    
+    
+    <!-- Internal tasks -->
+    <target name="rebuild" description="rebuild this template project">
+        <unzip src="/Users/jmadar/Documents/env3d/env3d/branches/env3d_jme3/dist/env3d_template.zip" dest=".">
+            <cutdirsmapper dirs="1" />
+        </unzip>
+    </target>
+    
+    <target name="zipme" description="Zip the application to the sample project">
+        <property name="build.classes.dir" location="/Users/jmadar/Documents/Env3DModule"/>
+        <property name="examples" location="${build.classes.dir}/src/org/env3d/nbproject"/>
+        <zip basedir="../Env3DTemplate" destfile="${examples}/Env3DTemplateProject.zip">
+            <exclude name="**/build/"/>
+            <exclude name="**/dist/"/>
+            <exclude name="**/nbproject/private/"/>
+        </zip>
+    </target>    
+    
+    <!--
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="Env3DTemplate-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+</project>
