@@ -36,10 +36,10 @@ public class EnvAdvanced extends Env {
         rootNode.attachChild(skyNode);
 
         // Physics and shadows
-        bulletAppState = new BulletAppState();
-        bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
-        stateManager.attach(bulletAppState);
-        bulletAppState.setEnabled(false);
+//        bulletAppState = new BulletAppState();
+//        bulletAppState.setThreadingType(BulletAppState.ThreadingType.PARALLEL);
+//        stateManager.attach(bulletAppState);
+//        bulletAppState.setEnabled(false);
 
 //        shadowRenderer = new BasicShadowRenderer(assetManager, 256);
         shadowRenderer = new PssmShadowRenderer(assetManager, 1024, 3);
