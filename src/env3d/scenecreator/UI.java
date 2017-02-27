@@ -84,7 +84,7 @@ public class UI {
         // Create a new canvas and set its size.
         canvas = new Canvas();
         // Must be 640*480 to match the size of an Env3D window
-        canvas.setSize(640, 480);
+        canvas.setPreferredSize(new Dimension(640, 480));
         // This is the magic!  The setParent method attaches the
         // opengl window to the awt canvas.
 
@@ -108,17 +108,18 @@ public class UI {
             
         }
         frame.add(canvas, BorderLayout.CENTER);
-        frame.pack();
-        frame.setVisible(true);
 
+        frame.setVisible(true);
         try {
             Display.setParent(canvas);
         } catch (Exception e) {
         }
-
-        game = new Game(this);
+           
+        game = new Game(this);        
         // Only load the scene if the top panel is loaded
         if (mode == Mode.SCENE_CREATOR || mode == Mode.PYTHON) load();
+        
+        frame.pack();     
     }
 
     public void load() {
