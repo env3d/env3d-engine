@@ -76,17 +76,17 @@ public class CreateAppletAction extends AbstractEnvAction {
             // Loading the use of topFrame parameter.  If topFrame is null, we assume it is called
             // from standalone and not create the game4.jar file.
             if (topFrame != null) {                
-                executeCommand(javaBin+"jar cf applet/game4.jar *.class");
+                executeCommand(javaBin+"jar cf applet/game4.jar *.class", CreateAppletAction.packageDir);
             }
             //executeCommand(javaBin+"jar cf applet/game_support.jar models/** textures/** sounds/**");
-            executeCommand(javaBin+"jar cf applet/game_support.jar -C staging/ .");
+            executeCommand(javaBin+"jar cf applet/game_support.jar -C staging/ .", CreateAppletAction.packageDir);
             progress.setProgress(20, "Packaging...");
-            executeCommand(javaBin+"pack200 --repack applet/game4.jar");
-            executeCommand(javaBin+"jarsigner -keystore env3dkey -storepass 123456 applet/game4.jar mykey");
-            executeCommand(javaBin+"pack200 -g applet/game4.jar.pack applet/game4.jar");
-            executeCommand(javaBin+"pack200 --repack applet/game_support.jar");
-            executeCommand(javaBin+"jarsigner -keystore env3dkey -storepass 123456 applet/game_support.jar mykey");
-            executeCommand(javaBin+"pack200 -g applet/game_support.jar.pack applet/game_support.jar");
+            executeCommand(javaBin+"pack200 --repack applet/game4.jar", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"jarsigner -keystore env3dkey -storepass 123456 applet/game4.jar mykey", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"pack200 -g applet/game4.jar.pack applet/game4.jar", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"pack200 --repack applet/game_support.jar", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"jarsigner -keystore env3dkey -storepass 123456 applet/game_support.jar mykey", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"pack200 -g applet/game_support.jar.pack applet/game_support.jar", CreateAppletAction.packageDir);
             // Compress game4.jar.pack and game4.jar.pack.lzma
             System.out.println("Compressing jars");
             progress.setProgress(50, "Compressing...");
@@ -95,8 +95,8 @@ public class CreateAppletAction extends AbstractEnvAction {
             compressFile(filepath+"/applet/game4.jar.pack");
             compressFile(filepath+"/applet/game_support.jar.pack");
             // Create gz files
-            executeCommand(javaBin+"pack200 --gzip applet/game4.jar.pack.gz applet/game4.jar");
-            executeCommand(javaBin+"pack200 --gzip applet/game_support.jar.pack.gz applet/game_support.jar");
+            executeCommand(javaBin+"pack200 --gzip applet/game4.jar.pack.gz applet/game4.jar", CreateAppletAction.packageDir);
+            executeCommand(javaBin+"pack200 --gzip applet/game_support.jar.pack.gz applet/game_support.jar", CreateAppletAction.packageDir);
 
             progress.setProgress(80, "Clean up...");
             deleteFile(filepath+"/applet/game4.jar");
@@ -194,54 +194,6 @@ public class CreateAppletAction extends AbstractEnvAction {
         f.delete();
     }
 
-    public static void executeCommand(String command) {
-        // Execute the jar and sign
-        String osName = System.getProperty("os.name");
-        String [] cmdArray;
-        if (osName.startsWith("Windows")) {
-            cmdArray = new String[] {"cmd", "/C", command};
-        } else {
-            // Unix-like OS - need to invoke the shell
-            cmdArray = new String[] {"bash", "-c", command};
-        }
-        Runtime r = Runtime.getRuntime();
-        try {
-            Process p = r.exec(cmdArray, null, packageDir);
-            InputStream in = p.getInputStream();
-            InputStream err = p.getErrorStream();
-
-            BufferedInputStream buf = new BufferedInputStream(in);
-            InputStreamReader inread = new InputStreamReader(buf);
-            BufferedReader bufferedreader = new BufferedReader(inread);
-
-            BufferedReader errReader = new BufferedReader(new InputStreamReader(new BufferedInputStream(err)));
-            // Read the ls output
-            String line;
-            while ((line = bufferedreader.readLine()) != null) {
-                System.out.println(line);
-            }
-
-            while ((line = errReader.readLine()) != null) {
-                System.out.println(line);
-            }
-            try {
-                if (p.waitFor() != 0) {
-                    System.out.println("exit value = " + p.exitValue());
-                }
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            } finally {
-                // Close the InputStream
-                bufferedreader.close();
-                inread.close();
-                buf.close();
-                in.close();
-                errReader.close();
-            }
-        } catch (Exception e) {
-            System.out.println("Error :" + e);
-        }
-    }
 
     /**
      * Upload a file to the env3d website and return the application id

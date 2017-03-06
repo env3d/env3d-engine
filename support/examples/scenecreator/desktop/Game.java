@@ -1,3 +1,5 @@
+//scenecreator auto-generated.  DO NOT MODIFIY
+
 import env3d.advanced.EnvAdvanced;
 import env3d.advanced.EnvNode;
 import env3d.advanced.EnvSkyRoom;

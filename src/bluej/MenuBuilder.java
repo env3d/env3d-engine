@@ -8,6 +8,7 @@ import bluej.action.DeployAndroidAction;
 import bluej.action.CreateModelAction;
 import bluej.action.CreateFatJarAction;
 import bluej.action.CreateAppletAction;
+import bluej.action.CreateWebAppAction;
 import bluej.extensions.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -134,18 +135,30 @@ public class MenuBuilder extends MenuGenerator {
             System.out.println("Class menu invoked "+aClass.getName());
             JMenu menu = new JMenu("Env3D Deploy Menu");
             if (aClass.getName().equals("Game")) {
-                if (aClass.getJavaClass().getSuperclass().getName().contains("EnvApplet")) {
-                    menu.add(new JMenuItem(new CreateAppletAction("Create Env3D Applet", "Run Env3D Applet")));
-                    menu.add(new JMenuItem(new CreateAppletAction("Upload Applet to Env3D.org", "Upload Applet to Env3D.org")));
-                } else if (aClass.getJavaClass().getSuperclass().getName().contains("EnvMobileGame")) {
-                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (debug)", "Create Android Package (debug)")));
-                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (release)", "Create Android Package (release)")));
+                
+                
+                // We are no longer going to support creation of applets and
+                // native android
+//                if (aClass.getJavaClass().getSuperclass().getName().contains("EnvApplet")) {
+//                    menu.add(new JMenuItem(new CreateAppletAction("Create Env3D Applet", "Run Env3D Applet")));
+//                    menu.add(new JMenuItem(new CreateAppletAction("Upload Applet to Env3D.org", "Upload Applet to Env3D.org")));
+//                } else if (aClass.getJavaClass().getSuperclass().getName().contains("EnvMobileGame")) {
+//                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (debug)", "Create Android Package (debug)")));
+//                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (release)", "Create Android Package (release)")));
+//                }
+
+                // Disabling "fat jar" for now.  Will replace with the shadow jar if we go this path
+//                Class<?>[] params = {String[].class};
+//                if (aClass.getMethod("main", params) != null) {
+//                    menu.add(new JMenuItem(new CreateFatJarAction("Create distribution jar file","Create distribution jar file")));
+//                    menu.add(new JMenuItem(new CreateAppletAction("Upload Java WebStart to Env3D.org","Upload Java WebStart to Env3D.org")));
+//                }
+                
+                if (aClass.getMethod("setup", null) != null &&
+                        aClass.getMethod("loop", null) != null) {
+                    menu.add(new JMenuItem(new CreateWebAppAction()));
                 }
-                Class<?>[] params = {String[].class};
-                if (aClass.getMethod("main", params) != null) {
-                    menu.add(new JMenuItem(new CreateFatJarAction("Create distribution jar file","Create distribution jar file")));
-                    menu.add(new JMenuItem(new CreateAppletAction("Upload Java WebStart to Env3D.org","Upload Java WebStart to Env3D.org")));
-                }
+                
                 if (menu.getItemCount() > 0) {
                     return menu;
                 } else {

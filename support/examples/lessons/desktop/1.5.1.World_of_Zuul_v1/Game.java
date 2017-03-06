@@ -34,12 +34,7 @@ public class Game
         doty = new Doty(5, 1, 1);
     }
      
-    /**
-     * This is the main game loop.  Try to keep it as short
-     * as possible.
-     */
-    public void play()
-    {
+    private void setup() {
         finished = false;
          
         // Create a new environment
@@ -57,14 +52,25 @@ public class Game
         env.setCameraPitch(-75);
          
         // Disable mouse and camera control
-        env.setDefaultControl(false);
-         
+        env.setDefaultControl(false);        
+    }
+    
+    private void loop() {
+        processInput(); 
+        checkWall();        
+    }
+    
+    /**
+     * This is the main game loop.  Try to keep it as short
+     * as possible.
+     */
+    public void play()
+    {
+        setup();
+        
         while (finished == false)
         {            
-            processInput();
- 
-            checkWall();
-             
+            loop();             
             env.advanceOneFrame();
         }
          

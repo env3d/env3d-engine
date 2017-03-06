@@ -12,6 +12,8 @@
     <import file="nbproject/build-impl.xml"/>
     <property name="support.dir" value="${dist.dir}/../support"/>
     <property name="libs.dir" value="${dist.dir}/../libs"/>
+    <property name="env3d-js.dir" value="../env3d-js"/>
+    <property name="env3d-transpiler.dir" value="../env3d-transpiler"/>
     <target name="-post-jar">
         <echo>Using JAVA_HOME: ${java.home}</echo>
         <copy file="${dist.dir}/env3d_jme3.jar" tofile="${dist.dir}/env3d_template/extensions/env3d_jme3.jar" overwrite="true" />
@@ -120,13 +122,24 @@
                 <include name="**" />
             </fileset>
         </copy>
+
+        <!-- Create the www and transpiler directory -->
+        <copy todir="${dist.dir}/env3d_template/">
+            <fileset dir="${env3d-js.dir}/dist" >
+                <include name="game.html" />
+                <include name="scene.html" />
+                <include name="js/**" />
+            </fileset>
+        </copy>
         
-<!--        <copy todir="${dist.dir}/env3d_template">
-            <fileset dir="${src.dir}/test/android/worldofzuul">
-                <include name="**"/>
-            </fileset>           
-        </copy>-->
-        
+        <mkdir dir="${dist.dir}/env3d_template/transpiler" />
+        <copy todir="${dist.dir}/env3d_template/transpiler">
+            <fileset dir="${env3d-transpiler.dir}/" >
+                <include name="**" />
+            </fileset>
+        </copy>
+        <delete file="${dist.dir}/env3d_template/transpiler/gradle.properties" />
+
         <!-- Make this a BlueJ project -->
         <touch file="${dist.dir}/env3d_template/package.bluej" />
         <touch file="${dist.dir}/env3d_template/bluej.pkg" />
