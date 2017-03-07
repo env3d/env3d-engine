@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import javax.swing.AbstractAction;
 
 /**
@@ -58,12 +59,31 @@ public abstract class AbstractEnvAction extends AbstractAction {
             cmdArray = new String[] {"cmd", "/C", command};
         } else {
             // Unix-like OS - need to invoke the shell
-            //cmdArray = new String[] {"bash", "-c", command};
-            cmdArray = command.split(" ");
+            ArrayList<String> commands = new ArrayList<String>();
+            commands.add("bash");   
+            commands.add("-l");
+            for (String c : command.split(" ")) {
+                commands.add(c);
+            }
+            System.out.print(">");
+            for (String c: commands) {
+                System.out.print(c+" ");
+            }
+            System.out.println();
+            cmdArray = commands.toArray(new String[0]);
         }
-        Runtime r = Runtime.getRuntime();
+//        Runtime r = Runtime.getRuntime();
         try {
-            Process p = r.exec(cmdArray, null, execDir);
+//            Process p = r.exec(cmdArray, null, execDir);
+            ProcessBuilder pb = new ProcessBuilder(cmdArray); 
+//            String path = pb.environment().get("PATH");
+//            pb.environment().put("PATH", path+":./node/bin:~/.jsweet-node_modules");
+//            
+//            for(String key : pb.environment().keySet()) {
+//                System.out.println(key+" "+pb.environment().get(key));
+//            }
+            pb.directory(execDir);
+            Process p = pb.start();
             InputStream in = p.getInputStream();
             InputStream err = p.getErrorStream();
 

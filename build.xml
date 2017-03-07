@@ -138,6 +138,7 @@
                 <include name="**" />
             </fileset>
         </copy>
+        <chmod file="${dist.dir}/env3d_template/transpiler/gradlew" perm="755"/>
         <delete file="${dist.dir}/env3d_template/transpiler/gradle.properties" />
 
         <!-- Make this a BlueJ project -->

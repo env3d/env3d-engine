@@ -11,15 +11,20 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Game
-{
+public class Game {
+
     private EnvAdvanced env;
     private EnvTerrain terrain;
-    
-    private void setup()
-    {
+
+    private void setup() {
         env = new EnvAdvanced();
-                
+        
+        // Disable the default env3d control
+        env.setDefaultControl(false);
+        
+        // Do not hide the mouse
+        env.setMouseGrab(false);
+        
         // Load the game objects
         try {
             URL url = Sysutil.getURL("world.txt");
@@ -44,7 +49,7 @@ public class Game
                     terrain.setTexture(fields[4], 2);
                     terrain.setTexture(fields[5], 3);
                     env.addObject(terrain);
-                } else if (fields[0].equalsIgnoreCase("object")) {                    
+                } else if (fields[0].equalsIgnoreCase("object")) {
                     GameObject n = (GameObject) Class.forName(fields[10]).newInstance();
                     n.setX(Double.parseDouble(fields[1]));
                     n.setY(Double.parseDouble(fields[2]));
@@ -63,29 +68,24 @@ public class Game
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        
     }
 
-    public void play()
-    {
+    public void loop() {
+        for (GameObject o : env.getObjects(GameObject.class)) {
+            o.move();
+        }
+        env.advanceOneFrame(30);
+    }
+
+    public void play() {
         setup();
-        
-        // Disable the default env3d control
-        env.setDefaultControl(false);        
-        // Do not hide the mouse
-        env.setMouseGrab(false);
-        
         while (env.getKey() != Keyboard.KEY_ESCAPE) {
-            for (GameObject o : env.getObjects(GameObject.class)) {
-                o.move();
-            }
-            env.advanceOneFrame(30);
+            loop();
         }
         env.exit();
     }
-    
-    public static void main(String [] args) {
+
+    public static void main(String[] args) {
         (new Game()).play();
     }
 }

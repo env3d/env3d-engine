@@ -34,8 +34,8 @@ public class CreateWebAppAction extends AbstractEnvAction {
             @Override
             public void run() {                
                 try {
-                    String path = bluej.getCurrentPackage().getDir().getCanonicalPath()+"/transpiler";
-                    executeCommand("bash -l /usr/local/bin/gradle dist", new File(path));
+                    String path = bluej.getCurrentPackage().getDir().getCanonicalPath()+"/transpiler";                    
+                    executeCommand("./gradlew dist", new File(path));
                     mc.reset();
                 } catch (ProjectNotOpenException ex) {
                     Logger.getLogger(CreateWebAppAction.class.getName()).log(Level.SEVERE, null, ex);
@@ -48,6 +48,10 @@ public class CreateWebAppAction extends AbstractEnvAction {
         };
         t.start();
         
+    }
+    
+    public static void main(String[] args) {
+        executeCommand("./gradlew dist", new File("/Users/jmadar/Documents/env3d/env3d-engine/dist/env3d_template/transpiler"));
     }
     
 }
