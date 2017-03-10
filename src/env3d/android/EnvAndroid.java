@@ -26,6 +26,7 @@ import java.util.logging.Logger;
  * The base class for all android based games.
  * 
  * @author jmadar
+ * @deprecated 
  */
 public class EnvAndroid extends EnvBasic {
 

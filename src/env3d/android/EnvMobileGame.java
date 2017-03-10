@@ -9,6 +9,7 @@ import env3d.android.EnvAndroid;
 /**
  *
  * @author jmadar
+ * @deprecated 
  */
 public abstract class EnvMobileGame {
     

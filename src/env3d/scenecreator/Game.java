@@ -47,7 +47,7 @@ public class Game {
 
     public Game(UI ui) {
         this.ui = ui;
-        if (ui.isSceneCreatorMode()) {
+        if (ui != null && ui.isSceneCreatorMode()) {
             env = new EnvAdvanced();
         } else {
             env = new Env();
@@ -130,7 +130,7 @@ public class Game {
                 }
 
                 // In visualization mode, escape would exit
-                if (!ui.isSceneCreatorMode() && env.getKey() == 1) {
+                if ((ui != null && !ui.isSceneCreatorMode()) && env.getKey() == 1) {
                     finished = true;
                 }
             } else {
@@ -149,7 +149,7 @@ public class Game {
             }
 
 
-
+            
             env.advanceOneFrame();
         }
     }

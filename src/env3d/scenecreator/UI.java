@@ -172,6 +172,7 @@ public class UI {
     }
 
     public void start() {
+        frame.setAlwaysOnTop(true);
         game.play();
         System.out.println("Destroying stuff");
         game.getEnv().destroy();
@@ -494,12 +495,14 @@ public class UI {
             
             File gameJavaFileDest = new File(srcDir+"Game.java");
             // If we don't have the Game class already, let the user choose which platform to use            
-            if (!gameJavaFileDest.isFile()) {
-                String[] platforms = {"desktop", "android"};
-                platform = (String) JOptionPane.showInputDialog(this.frame, 
-                        "Choose a platform", "Platforms", JOptionPane.INFORMATION_MESSAGE, 
-                        null, platforms, platforms[0]);
-            }
+            
+            // Deprecating the Android platform, since we can now deploy desktop to webgl
+//            if (!gameJavaFileDest.isFile()) {
+//                String[] platforms = {"desktop", "android"};
+//                platform = (String) JOptionPane.showInputDialog(this.frame, 
+//                        "Choose a platform", "Platforms", JOptionPane.INFORMATION_MESSAGE, 
+//                        null, platforms, platforms[0]);
+//            }
             File gameObjectJavaFileDest = new File(srcDir+"GameObject.java");
 
             if (platform == null) platform = "desktop";            

@@ -6,6 +6,7 @@ package env3d.android;
  * Encapsulates a single key->location mapping of the on-screen keyboard
  * 
  * @author jmadar
+ * @deprecated 
  */
 class KeyMap {
 

@@ -4,20 +4,19 @@ import bluej.env3d.BEnv;
 import bluej.action.StartEnvAction;
 import bluej.action.OnlineExampleAction;
 import bluej.action.ExtractAssetsAction;
-import bluej.action.DeployAndroidAction;
 import bluej.action.CreateModelAction;
-import bluej.action.CreateFatJarAction;
-import bluej.action.CreateAppletAction;
 import bluej.action.CreateWebAppAction;
 import bluej.extensions.*;
+import com.sun.javafx.stage.StageHelper;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import javax.swing.*;
-import java.util.Collection;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import env3d.util.Sysutil;
+import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.application.Platform;
 
 public class MenuBuilder extends MenuGenerator {
 
@@ -25,8 +24,7 @@ public class MenuBuilder extends MenuGenerator {
     private BClass curClass;
     private BObject curObject;
     private BEnv env;
-    JMenuItem startEnvMenu;
-    private Collection objectCollection;
+    private JMenuItem startEnvMenu;
     private Preferences prefs;
 
     public MenuBuilder(Preferences p) {
@@ -45,120 +43,113 @@ public class MenuBuilder extends MenuGenerator {
 
         JMenu exampleMenu = new JMenu("Examples");
         env3dMenu.add(exampleMenu);
-        
-        
-        // Look into the lessons directory and create menu items
+
+        // Look into the lessons directory and create menu items        
+        addExamples(exampleMenu, "desktop");
+
+        final JMenu modelsMenu = new JMenu("Models");
+        File[] directories;
         try {
-            File lessonsDir = new File(curPackage.getDir()+"/examples/lessons");
-            if (lessonsDir.isDirectory()) {
-                for (String item : lessonsDir.list()) {
-                    JMenu lessonMenu = new JMenu(item);
-                    exampleMenu.add(lessonMenu);
-                    addExamples(lessonMenu, item);
-                }
+            directories = Sysutil.dirList(curPackage.getDir().getCanonicalFile() + "/models");
+            // The number of models has changed, repopulate                     
+            for (File dir : directories) {
+                modelsMenu.add(new JMenuItem(new CreateModelAction(dir.getName(), dir.getName())));
             }
-        } catch (Exception e) {
-            // no lessons directory found!
+        } catch (Exception ex) {
+            Logger.getLogger(MenuBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        
-        JMenu modelsMenu = new JMenu("Models");
-        // Get all the models from the models directory
-        modelsMenu.addMenuListener(new MenuListener() {
 
-            // A few to hold the models directories;
-            private File[] directories = {};
-            public void menuSelected(MenuEvent me) {
-                // Refresh the menu every time it is selected
-                JMenu modelsMenu = (JMenu) me.getSource();
-                try {                    
-                    File[] newDirectories = Sysutil.dirList(curPackage.getDir().getCanonicalFile()+"/models");
-                    // The number of models has changed, repopulate                     
-                    if (directories.length != newDirectories.length) {
-                        modelsMenu.removeAll();
-                        directories = newDirectories;
-                        for (File dir : directories) {
-                            modelsMenu.add(new JMenuItem(new CreateModelAction(dir.getName(), dir.getName())));
-                        }
-                    }
-                } catch (Exception ex) {
-                    System.out.println("Error "+ex);
-                }                
-            }
-
-            public void menuDeselected(MenuEvent me) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-
-            public void menuCanceled(MenuEvent me) {
-                //throw new UnsupportedOperationException("Not supported yet.");
-            }
-        });
         env3dMenu.add(modelsMenu);
-        
+
         env3dMenu.add(new StartEnvAction("Env3D Scene Creator", "Env3D Scene Creator"));
 
         try {
-            File additionalModels = new File(curPackage.getDir().getCanonicalFile()+File.separator+"env3d_characterpack.jar.lzma");
+            File additionalModels = new File(curPackage.getDir().getCanonicalFile() + File.separator + "env3d_characterpack.jar.lzma");
             if (additionalModels.isFile()) {
                 env3dMenu.add(new JPopupMenu.Separator());
                 env3dMenu.add(new ExtractAssetsAction("Extract additional models"));
-            } 
-        } catch (Exception e) {         
+            }
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(Bluejenv.bluej.getCurrentFrame(), e, "", JOptionPane.INFORMATION_MESSAGE);
         }
-
-        // If this is an empty project, allow users to choose from online examples
-//        try {
-//            if (curPackage.getClasses().length == 0) {
-//                env3dMenu.add(new JPopupMenu.Separator());
-//                String [] examples = Sysutil.readUrl(prefs.getServerUrl()+"/examples/").split("\n");
-//
-//                for (String example : examples) {
-//                    // Get all examples from env3d.org
-//                    JMenuItem exampleItem = new JMenuItem(new OnlineExampleAction(example, example));
-//                    env3dMenu.add(exampleItem);
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
         return env3dMenu;
         //return startEnvMenu;
     }
 
     public JMenuItem getClassMenuItem(BClass aClass) {
-        
+
         try {
             System.out.println(aClass.getJavaClass().getSuperclass());
-            System.out.println("Class menu invoked "+aClass.getName());
-            JMenu menu = new JMenu("Env3D Deploy Menu");
+            System.out.println("Class menu invoked " + aClass.getName());
+            JMenu menu = new JMenu("Env3D");
             if (aClass.getName().equals("Game")) {
-                
-                
-                // We are no longer going to support creation of applets and
-                // native android
-//                if (aClass.getJavaClass().getSuperclass().getName().contains("EnvApplet")) {
-//                    menu.add(new JMenuItem(new CreateAppletAction("Create Env3D Applet", "Run Env3D Applet")));
-//                    menu.add(new JMenuItem(new CreateAppletAction("Upload Applet to Env3D.org", "Upload Applet to Env3D.org")));
-//                } else if (aClass.getJavaClass().getSuperclass().getName().contains("EnvMobileGame")) {
-//                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (debug)", "Create Android Package (debug)")));
-//                    menu.add(new JMenuItem(new DeployAndroidAction("Create Android Package (release)", "Create Android Package (release)")));
-//                }
 
-                // Disabling "fat jar" for now.  Will replace with the shadow jar if we go this path
-//                Class<?>[] params = {String[].class};
-//                if (aClass.getMethod("main", params) != null) {
-//                    menu.add(new JMenuItem(new CreateFatJarAction("Create distribution jar file","Create distribution jar file")));
-//                    menu.add(new JMenuItem(new CreateAppletAction("Upload Java WebStart to Env3D.org","Upload Java WebStart to Env3D.org")));
-//                }
-                
-                if (aClass.getMethod("setup", null) != null &&
-                        aClass.getMethod("loop", null) != null) {
+                if (aClass.getMethod("setup", null) != null
+                        && aClass.getMethod("loop", null) != null
+                        && aClass.getMethod("play", null) != null) {
+
+                    final BMethod method = aClass.getMethod("play", null);
+
+                    menu.add(new JMenuItem(new AbstractAction("Execute App") {
+                                                     
+                        boolean started = false;
+                        
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            System.out.println("Executing main");
+                            
+                            Thread en = new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        BConstructor con = aClass.getConstructor(null);
+                                        BObject o = con.newInstance(null);
+                                        o.addToBench("game1");
+                                        method.invoke(o, null);
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(MenuBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+
+                            };
+                            en.start();
+
+                            final Runnable r = new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        StageHelper.getStages().stream().forEach((stg) -> {
+                                            if (!stg.getTitle().contains("Terminal Window")) {
+                                                stg.toBack();
+                                            }
+                                        });
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(MenuBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+                            };
+
+                            Thread t = new Thread() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        sleep(2000);
+                                        Platform.runLater(r);
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(MenuBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
+                                }
+                            };
+                            t.start();
+
+                        }
+
+                    }));
+
                     menu.add(new JMenuItem(new CreateWebAppAction()));
                 }
-                
+
                 if (menu.getItemCount() > 0) {
                     return menu;
                 } else {
@@ -167,13 +158,9 @@ public class MenuBuilder extends MenuGenerator {
             } else {
                 return null;
             }
-//            if (EnvApplet.class.isInstance(aClass.getJavaClass())) {
-//                return new JMenuItem(new CreateAppletAction("Run Env3D Applet", "Run Env3D Applet"));
-//            } else {
-//                return null;
-//            }
+
         } catch (Exception e) {
-            System.out.println("Error in getClassMenuItem: "+e);
+            System.out.println("Error in getClassMenuItem: " + e);
             return null;
         }
     }
@@ -219,25 +206,25 @@ public class MenuBuilder extends MenuGenerator {
         } catch (Exception exc) {
         }
     }
-    
+
     private void addExamples(JMenu menu, String path) {
-        String [] examples = {};
+        String[] examples = {};
         try {
             //examples = Sysutil.readUrl(prefs.getServerUrl()+"/examples/").split("\n");
-            
-            File examplesDir = new File(curPackage.getDir()+"/examples/lessons/"+path+"/");
+
+            File examplesDir = new File(curPackage.getDir() + "/examples/lessons/" + path + "/");
             if (examplesDir.isDirectory()) {
                 examples = examplesDir.list();
             }
         } catch (Exception e) {
-            System.out.println("Error: "+e);
+            System.out.println("Error: " + e);
         }
 
         for (String example : examples) {
             // Get all examples from env3d.org
-            JMenuItem exampleItem = new JMenuItem(new OnlineExampleAction(example, path+"/"+example));
+            JMenuItem exampleItem = new JMenuItem(new OnlineExampleAction(example, path + "/" + example));
             menu.add(exampleItem);
         }
-        
+
     }
 }

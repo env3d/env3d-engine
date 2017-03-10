@@ -15,6 +15,7 @@ import env3d.util.Sysutil;
 /**
  * The on-screen controller
  * @author jmadar
+ * @deprecated 
  */
 public class EnvDefaultController {
 
