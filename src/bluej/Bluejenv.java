@@ -42,21 +42,28 @@ public class Bluejenv extends Extension {
         AbstractEnvAction.setBluej(bluej);
         
               
-        bluej.addInvocationListener(new InvocationListener() {            
-
-            public void invocationFinished(InvocationEvent ie) {                
-                try {
-                    if (StartEnvAction.getUI() != null) {   
-                        System.out.println("Current Package: "+StartEnvAction.getBluej().getCurrentPackage());
-                        for (BObject obj : StartEnvAction.getBluej().getCurrentPackage().getObjects()) {                            
-                            StartEnvAction.getUI().getGame().addObject(obj);
-                        }
+        bluej.addInvocationListener((InvocationEvent ie) -> {            
+            if (ie != null) System.out.println(ie.getMethodName()+" is invoked on "+ie.getObjectName());
+            try {
+                if (StartEnvAction.getUI() != null) {
+                    System.out.println("Current Package: "+StartEnvAction.getBluej().getCurrentPackage());                    
+                    Object result = (ie != null && ie.getMethodName() == null) ? ie.getResult() : null;
+//                    Object result = ie.getResult();
+                    if (result != null && result instanceof BObject) {
+                        System.out.println(result);
+                        StartEnvAction.getUI().getGame().addObject((BObject)result);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
+//                    for (BObject obj : StartEnvAction.getBluej().getCurrentPackage().getObjects()) {
+//                        System.out.println("Adding object "+obj.getInstanceName());
+//                        StartEnvAction.getUI().getGame().addObject(obj);
+//                    }
+                    StartEnvAction.getUI().getGame().updateBObjects();
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });                
+
 
     }
 

@@ -12,8 +12,15 @@ import env3d.GameObjectAdapter;
  * @author (your name)
  * @version (a version number or a date)
  */
-public class GameBObjectAdapter extends GameObjectAdapter {
+public class GameBObjectAdapter {
 
+    private Object internalObject;
+    
+    private double x, y, z, scale;
+    private double rotateX, rotateY, rotateZ;
+    private String texture, model;
+    private boolean transparent;
+    
     //private BObject internalObject;
     public GameBObjectAdapter(BObject obj) {
         internalObject = obj;
@@ -21,7 +28,21 @@ public class GameBObjectAdapter extends GameObjectAdapter {
         update();
     }
 
-    protected <T> T getFieldFromObject(String fname) {
+    public void update() {
+        x = getFieldValue("x");
+        y = getFieldValue("y");
+        z = getFieldValue("z");
+        rotateX = getFieldValue("rotateX");
+        rotateY = getFieldValue("rotateY");
+        rotateZ = getFieldValue("rotateZ");
+        scale = getFieldValue("scale");
+        texture = getFieldValue("texture");
+        model = getFieldValue("model");
+        transparent = getFieldValue("transparent");        
+//        System.out.println(x+" "+y+" "+z);        
+    }
+    
+    private <T> T getFieldValue(String fname) {
         String resourceDir = BEnv.resourceDir;
         T fieldValue = null;
         try {

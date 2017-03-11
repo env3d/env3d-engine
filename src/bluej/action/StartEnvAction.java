@@ -120,24 +120,12 @@ public class StartEnvAction extends AbstractEnvAction {
                     ui.getGame().getEnv().setCameraXYZ(getPrefs().getCameraX(), getPrefs().getCameraY(), getPrefs().getCameraZ());
                 }
                 
-                // Add objects into the room
-                BObject[] ob;
-                try {                    
-                    ob = bp.getObjects();
-                    for (BObject obj : ob) {
-                        //env.addObject(obj);
-                        System.out.println("Adding object "+obj);
-                        ui.getGame().addObject(obj);
+                if (ui.getMode() == UI.Mode.BLUEJ) {
+                    System.out.println("Current Package: "+StartEnvAction.getBluej().getCurrentPackage());
+                    for (BObject obj : StartEnvAction.getBluej().getCurrentPackage().getObjects()) {
+                        StartEnvAction.getUI().getGame().addObject(obj);
                     }
-                } catch (PackageNotFoundException ex) {
-                    ex.printStackTrace();
-                } catch (ProjectNotOpenException ex) {
-                    ex.printStackTrace();
                 }
-
-
-
-                
 
                 // Commented out to test env3d.scenecreator
 //                boolean finished = false;

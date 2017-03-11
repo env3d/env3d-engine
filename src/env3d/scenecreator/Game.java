@@ -138,9 +138,9 @@ public class Game {
             }
 
             // call the move method 
-            for (GameBObjectAdapter obj : bluejObj.values()) {
-                obj.callMoveFromObject();
-            }
+//            for (GameBObjectAdapter obj : bluejObj.values()) {
+//                obj.callMoveFromObject();
+//            }
 
             switch (env.getKey()) {
                 case Keyboard.KEY_ESCAPE:
@@ -149,8 +149,7 @@ public class Game {
             }
 
 
-            
-            env.advanceOneFrame();
+            env.advanceOneFrame(30);
         }
     }
 
@@ -281,6 +280,12 @@ public class Game {
             bluejObj.put(obj, new GameBObjectAdapter(obj));
             env.addObject(bluejObj.get(obj));
         }
+    }
+    
+    public void updateBObjects() {
+        bluejObj.values().stream().forEach((o) -> {
+            o.update();
+        });
     }
 
     public void removeObject(BObject obj) {

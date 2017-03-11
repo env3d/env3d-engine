@@ -3,6 +3,7 @@ package bluej.env3d;
 import bluej.extensions.BObject;
 //import bluej.env3d.Env;
 import env3d.Env;
+import env3d.EnvObject;
 import env3d.RoomAdapter;
 import env3d.SimpleRoom;
 import env3d.advanced.EnvAdvanced;
